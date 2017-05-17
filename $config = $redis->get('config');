@@ -1,0 +1,21 @@
+$config = $redis->get('config');
+if($config){
+	//业务操作...
+}else{
+	
+	$config_cache = $redis->incr('config_cache');//计数器
+    if($config_cache==1){
+    	//第一次来的操作DB
+    	$config = $db->select('config');//查库
+		$redis->get('config');
+		$redis->incrby('config_cache',0);
+
+    }else if($config_cache>1){
+    	sleep(10);
+    	$config = $redis->get('config');//循环查几次,查不到跳出
+
+    }
+
+	
+	//业务操作...
+}
